@@ -1,4 +1,5 @@
 let teclado=[];
+let slider=[];
 let notas=[60,62,64,66,67,71,72,74,78,80,82,86,88,92];
 const l=200;
 var x=undefined;
@@ -6,29 +7,62 @@ var a=undefined;
 const len=14;
 var env= [];
 var osc =[];
-
+let sel;
+let valor;
 function setup() {
 createCanvas(windowWidth, windowHeight);
-background(176, 189, 219);
+background(0);
+slider.push(createSlider(0.000, 1.000, .01, .001));
+slider.push(createSlider(0, 2, .5, .01));
+slider.push(createSlider(0, 1, 1, .01));
+slider.push(createSlider(0, 2, .5, .01));
+let xSlider=width/15;
+let ySlider= 300;
+slider[0].position(xSlider,ySlider);
+slider[0].style('width', '400px');
+slider[1].position(xSlider,ySlider+50);
+slider[1].style('width', '400px');
+slider[2].position(xSlider,ySlider+100);
+slider[2].style('width', '400px');
+slider[3].position(xSlider,ySlider+150);
+slider[3].style('width', '400px');
+attack=slider[0].value();
+decay=slider[1].value();
+sustain=slider[2].value();
+release=slider[3].value();
+sel = createSelect();
+sel.position(7*width/10,3*height/6);
+sel.option('square');
+sel.option('triangle');
+sel.option('sine');
+sel.option('sawtooth');
+valor=sel.value()
 a=width/len;
   for(let i=0;i<len;i++){
         x=i*a;
         teclado[i]= new tecla(x,0,a,l,i,notas[i]);
         env.push(new p5.Env());
-        env[i].setADSR(0.01,0.05,1,0.5);
+        //env[i].setADSR(0.01,0.05,1,0.5);
+        env[i].setADSR(attack,decay,sustain,release);
         env[i].setRange(1,0);
-        osc.push(new p5.Oscillator('sawtooth'));
-        osc[i].amp(env[i])
+        osc.push(new p5.Oscillator(valor));
+        osc[i].amp(env[i]);
         osc[i].start();
 }
+
 }
 
 
 function draw() {
     //a=width/len;
     drawPiano();
+    rect(0,l+10,width,70);
+    fill(217, 217, 100);
+    textSize(45);
+    text('Steinway & Sons', width/3,l+55);
 
 }
+
 
 class tecla{
     constructor(x,y,a,l,id,note){
@@ -46,28 +80,26 @@ class tecla{
         rect (this.x,this.y,this.a,this.l);
     }
     rectChangeColor(){
-        fill(100,25,200);
-        rect(this.x,this.y,this.a,this.l);
+        
+     color(255,0,0);
     }
  
 }
 function drawPiano(){
     
-   /* for(let i=0;i<len;i++){
-        x=i*a;
-        teclado[i]= new tecla(x,0,a,l,i,notas[i]);
-        
-}*/
     for(let i=0 ;i<len;i++){
-
+         
         if(mouseX>teclado[i].x && mouseX<teclado[i].x+teclado[i].a && mouseY<l){
             if(mouseIsPressed){
-                fill(100,25,200);
+                fill(random(0,255),random(0,255),random(0,255));
+                 
             }else{
-                fill(127);
+                fill('rgba(250, 128, 114,0.5)');
             }
         }else{
-            fill (103, 57, 238);
+            stroke(0);
+            strokeWeight(8);
+            fill (255);
         }
         teclado[i].rect();
     }
@@ -75,7 +107,7 @@ function drawPiano(){
 
 function keyPressed(){
     if(keyCode==65){
-        teclado[0].rectChangeColor();
+       teclado[0].rectChangeColor();
         osc[0].freq(midiToFreq(notas[0]));
         env[0].play()
     }else if(keyCode==83){
@@ -133,9 +165,22 @@ function keyPressed(){
         env[13].play()
     }
 }
+
+
 function keyReleased(){
     for(let i=0;i<teclado.length;i++){
         fill (103, 57, 238);
         teclado[i].rect();
     }
+}
+
+function mousePressed(){
+    for(let i=0;i<len;i++){
+   if( mouseX>teclado[i].x && mouseX<teclado[i].x+teclado[i].a && mouseY<l)
+   {
+        osc[i].freq(midiToFreq(notas[i]));
+        env[i].play()
+    
+   }
+}
 }

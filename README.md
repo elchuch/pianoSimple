@@ -1,4 +1,4 @@
-# Piano en Javascript whith p5.js
+# Piano en Javascript with p5.js
 ### the project is realized   at the  multimedia programming class
 ### tecnology:
 ### - JavaScript
